@@ -72,6 +72,10 @@
 - 读取前 100 行预览
 - 输出列数和估计行数
 
+**代码简洁性提示**:
+- 保存代码文件后提示运行 `/simplify`
+- 使用 LLM 语义分析代码质量
+
 ---
 
 ### 4. Stop Hook
@@ -107,6 +111,34 @@
    • 警告: 1
    • 错误: 0
 ```
+
+---
+
+## Slash Commands
+
+### /simplify - 代码简洁性检查
+
+**功能**: 使用 LLM 语义分析代码是否符合 Linux 极简主义哲学
+
+**使用方法**: 在 Claude Code 中输入 `/simplify`
+
+**检查项目**:
+1. **单一职责** - 每个函数/模块是否只做一件事？
+2. **函数长度** - 函数是否短小精悍（建议 ≤30 行）？
+3. **嵌套深度** - 控制流嵌套是否 ≤3 层？
+4. **早返回** - 是否使用卫语句减少嵌套？
+5. **无冗余** - 是否有不必要的变量、注释或重复代码？
+6. **命名清晰** - 变量/函数名是否自解释？
+7. **行宽适中** - 是否 ≤100 字符，便于阅读？
+
+**输出**:
+- 指出具体问题（行号+原因）
+- 给出简化后的代码示例
+- 解释为什么这样更简洁
+
+**触发方式**:
+- 手动输入 `/simplify`
+- 或保存代码文件后，PostToolUse hook 会提示使用
 
 ---
 
@@ -191,16 +223,19 @@ Hooks 通过环境变量获取上下文:
 ```
 .
 ├── .claude/
-│   ├── settings.json          # hooks 配置
-│   └── settings.local.json    # 本地配置（gitignored）
+│   ├── settings.json              # hooks 配置
+│   ├── settings.local.json        # 本地配置（gitignored）
+│   └── slash-commands/
+│       └── simplify.md            # /simplify 命令定义
 ├── hooks/
-│   ├── session_start.R        # 会话开始 hook
-│   ├── pre_tool_use.R         # 工具使用前 hook
-│   ├── post_tool_use.R        # 工具使用后 hook
-│   └── stop.R                 # 会话结束 hook
+│   ├── session_start.R            # 会话开始 hook
+│   ├── pre_tool_use.R             # 工具使用前 hook
+│   ├── post_tool_use.R            # 工具使用后 hook
+│   ├── stop.R                     # 会话结束 hook
+│   └── simplify_prompt.txt        # 简洁性检查提示模板
 ├── data/
-│   ├── stats.json             # 统计信息（自动生成）
-│   └── hook_log.csv           # 操作日志（自动生成）
+│   ├── stats.json                 # 统计信息（自动生成）
+│   └── hook_log.csv               # 操作日志（自动生成）
 └── README.md
 ```
 

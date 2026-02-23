@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-# PostToolUse Hook - 格式化代码、生成报告、记录日志
+# PostToolUse Hook - 格式化代码、触发简洁性检查
 
 suppressPackageStartupMessages(library(jsonlite))
 
@@ -54,6 +54,7 @@ main <- function() {
 
   ext <- tolower(tools::file_ext(file))
 
+  # R 文件格式化
   if (ext %in% c("r", "rmd")) {
     cat("   🔧 尝试格式化...\n")
     r <- format_r(file)
@@ -61,6 +62,7 @@ main <- function() {
     log_hook(dir, tool, file, if (r$ok) "formatted" else "info", r$msg)
   }
 
+  # CSV 分析
   if (ext == "csv" && file.exists(file)) {
     tryCatch({
       df <- read.csv(file, nrows = 100)
@@ -69,6 +71,13 @@ main <- function() {
     }, error = function(e) log_hook(dir, tool, file, "error", e$message))
   }
 
+  # 触发 LLM 代码简洁性检查提示
+  code_exts <- c("r", "rmd", "py", "js", "ts", "c", "cpp", "java", "go", "rs", "rb", "sh")
+  if (ext %in% code_exts) {
+    cat("\n   💡 提示: 运行 '/simplify' 让 Claude 检查代码简洁性\n")
+  }
+
+  # 更新 stats
   json_file <- file.path(dir, "data", "stats.json")
   if (file.exists(json_file)) {
     stats <- fromJSON(json_file)
