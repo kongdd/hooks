@@ -1,9 +1,17 @@
 #!/usr/bin/env Rscript
-# PreToolUse Hook - 验证文件操作，检查敏感信息
+# PreToolUse Hook - 从stdin读取数据，验证文件操作
 
 suppressPackageStartupMessages(library(jsonlite))
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
+
+# 从stdin读取JSON输入
+read_stdin <- function() {
+  if (interactive()) return(NULL)
+  lines <- readLines(file("stdin"), warn = FALSE)
+  if (length(lines) == 0) return(NULL)
+  tryCatch(fromJSON(paste(lines, collapse = "\n")), error = function(e) NULL)
+}
 
 log_hook <- function(dir, tool, file, status, msg) {
   entry <- data.frame(
@@ -43,8 +51,12 @@ check_sensitive <- function(f) {
 }
 
 main <- function() {
-  file <- Sys.getenv("FILEPATH", "")
-  tool <- Sys.getenv("TOOL", "Unknown")
+  # 从stdin读取hook数据
+  input <- read_stdin()
+
+  # 提取信息（优先stdin，其次环境变量）
+  tool <- input$tool %||% Sys.getenv("TOOL", "Unknown")
+  file <- input$tool_input$filepath %||% input$filepath %||% Sys.getenv("FILEPATH", "")
   dir <- Sys.getenv("CLAUDE_PROJECT_DIR", getwd())
 
   if (file == "") {

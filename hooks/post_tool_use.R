@@ -1,9 +1,21 @@
 #!/usr/bin/env Rscript
-# PostToolUse Hook - 格式化代码、触发简洁性检查
+# PostToolUse Hook - 从stdin读取数据，格式化代码
 
 suppressPackageStartupMessages(library(jsonlite))
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
+
+# 从stdin读取JSON输入
+read_stdin <- function() {
+  if (interactive()) {
+    return(NULL)
+  }
+  lines <- readLines(file("stdin"), warn = FALSE)
+  if (length(lines) == 0) {
+    return(NULL)
+  }
+  tryCatch(fromJSON(paste(lines, collapse = "\n")), error = function(e) NULL)
+}
 
 log_hook <- function(dir, tool, file, status, msg) {
   entry <- data.frame(
@@ -16,13 +28,17 @@ log_hook <- function(dir, tool, file, status, msg) {
     stringsAsFactors = FALSE
   )
   log_file <- file.path(dir, "data", "hook_log.csv")
-  write.table(entry, log_file, append = file.exists(log_file),
-              sep = ",", row.names = FALSE, col.names = !file.exists(log_file))
+  write.table(entry, log_file,
+    append = file.exists(log_file),
+    sep = ",", row.names = FALSE, col.names = !file.exists(log_file)
+  )
 }
 
 format_r <- function(f) {
   ext <- tolower(tools::file_ext(f))
-  if (!ext %in% c("r", "rmd")) return(list(ok = FALSE, msg = "非 R 文件"))
+  if (!ext %in% c("r", "rmd")) {
+    return(list(ok = FALSE, msg = "非 R 文件"))
+  }
 
   if (!requireNamespace("styler", quietly = TRUE)) {
     return(list(ok = FALSE, msg = "styler 未安装"))
@@ -35,8 +51,12 @@ format_r <- function(f) {
 }
 
 main <- function() {
-  file <- Sys.getenv("FILEPATH", "")
-  tool <- Sys.getenv("TOOL", "Unknown")
+  # 从stdin读取hook数据
+  input <- read_stdin()
+
+  # 提取信息（优先stdin，其次环境变量）
+  tool <- input$tool %||% Sys.getenv("TOOL", "Unknown")
+  file <- input$tool_input$filepath %||% input$filepath %||% Sys.getenv("FILEPATH", "")
   dir <- Sys.getenv("CLAUDE_PROJECT_DIR", getwd())
 
   if (file == "") {
