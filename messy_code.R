@@ -1,4 +1,5 @@
 # 混乱的R代码示例 - 用于测试代码简洁性检查
+# 更新: 添加更多测试场景
 
 process_data <- function(df, x, y, z, flag1, flag2, flag3) {
   # 这个函数做太多事情了
