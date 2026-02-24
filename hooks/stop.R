@@ -2,13 +2,10 @@
 # Stop Hook - 生成会话摘要报告
 
 suppressPackageStartupMessages(library(jsonlite))
-
-`%||%` <- function(x, y) if (is.null(x)) y else x
-
-log_stderr <- function(fmt, ...) cat(sprintf(fmt, ...), file = stderr())
+source(file.path(Sys.getenv("CLAUDE_PROJECT_DIR", getwd()), "R", "hooks.R"))
 
 main <- function() {
-  dir <- Sys.getenv("CLAUDE_PROJECT_DIR", getwd())
+  dir <- get_project_dir()
   json_file <- file.path(dir, "data", "stats.json")
 
   if (!file.exists(json_file)) {

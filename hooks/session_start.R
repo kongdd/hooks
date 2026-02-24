@@ -2,10 +2,7 @@
 # SessionStart Hook - 扫描项目，生成统计信息
 
 suppressPackageStartupMessages(library(jsonlite))
-
-`%||%` <- function(x, y) if (is.null(x)) y else x
-
-log_stderr <- function(fmt, ...) cat(sprintf(fmt, ...), file = stderr())
+source(file.path(Sys.getenv("CLAUDE_PROJECT_DIR", getwd()), "R", "hooks.R"))
 
 scan_project <- function(dir) {
   old <- setwd(dir)
@@ -31,7 +28,7 @@ scan_project <- function(dir) {
 }
 
 main <- function() {
-  project_dir <- Sys.getenv("CLAUDE_PROJECT_DIR", getwd())
+  project_dir <- get_project_dir()
   stats <- scan_project(project_dir)
 
   log_stderr("\n╔══════════════════════════════════════════════════════════════╗\n")

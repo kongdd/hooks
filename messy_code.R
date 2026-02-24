@@ -1,36 +1,58 @@
 # 简洁的R代码示例 - 遵循Unix极简主义
 
 validate_dataframe <- function(df) {
-  if (is.null(df)) return(list(valid = FALSE, error = "输入为空"))
-  if (!is.data.frame(df)) return(list(valid = FALSE, error = "输入不是数据框"))
-  if (nrow(df) == 0) return(list(valid = FALSE, error = "数据框没有行"))
-  if (ncol(df) == 0) return(list(valid = FALSE, error = "数据框没有列"))
+  if (is.null(df)) {
+    return(list(valid = FALSE, error = "输入为空"))
+  }
+  if (!is.data.frame(df)) {
+    return(list(valid = FALSE, error = "输入不是数据框"))
+  }
+  if (nrow(df) == 0) {
+    return(list(valid = FALSE, error = "数据框没有行"))
+  }
+  if (ncol(df) == 0) {
+    return(list(valid = FALSE, error = "数据框没有列"))
+  }
   list(valid = TRUE, error = NULL)
 }
 
 calc_numeric_stat <- function(x, flag1, flag2, flag3, x_param, y_param, z_param) {
-  if (!flag1) return(sd(x, na.rm = TRUE))
+  if (!flag1) {
+    return(sd(x, na.rm = TRUE))
+  }
   if (!flag2) {
     multiplier <- sum(c(x_param, y_param, z_param) > 0)
     return(sum(x, na.rm = TRUE) * max(1, multiplier))
   }
-  if (!flag3) return(median(x, na.rm = TRUE))
+  if (!flag3) {
+    return(median(x, na.rm = TRUE))
+  }
 
   tmp <- mean(x, na.rm = TRUE)
-  if (is.na(tmp)) return(0)
-  if (tmp <= 0) return(tmp)
+  if (is.na(tmp)) {
+    return(0)
+  }
+  if (tmp <= 0) {
+    return(tmp)
+  }
   tmp * x_param + y_param - z_param
 }
 
 process_column <- function(col, flag1, flag2, flag3, x, y, z) {
-  if (is.numeric(col)) return(calc_numeric_stat(col, flag1, flag2, flag3, x, y, z))
-  if (is.character(col)) return(length(unique(col)))
+  if (is.numeric(col)) {
+    return(calc_numeric_stat(col, flag1, flag2, flag3, x, y, z))
+  }
+  if (is.character(col)) {
+    return(length(unique(col)))
+  }
   NA
 }
 
 process_data <- function(df, x, y, z, flag1, flag2, flag3) {
   validation <- validate_dataframe(df)
-  if (!validation$valid) return(list(error = validation$error))
+  if (!validation$valid) {
+    return(list(error = validation$error))
+  }
 
   setNames(
     lapply(df, process_column, flag1, flag2, flag3, x, y, z),
@@ -65,8 +87,10 @@ calculate_something <- function(input_data, p1, p2, p3,
     output[[paste0("iter_", counter)]] <- get_parity_label(counter)
 
     if (should_log_deep(c(p1, p2, p3, input_data), counter)) {
-      log_debug(paste("Deep condition at iteration", counter),
-                list(enable_feature, debug, verbose))
+      log_debug(
+        paste("Deep condition at iteration", counter),
+        list(enable_feature, debug, verbose)
+      )
     }
   }
 
@@ -76,8 +100,10 @@ calculate_something <- function(input_data, p1, p2, p3,
 generate_grid_output <- function(p1, p2, p3) {
   indices <- expand.grid(i = 1:10, j = 1:10, k = 1:10)
   setNames(
-    mapply(function(i, j, k) i * j * k * p1 * p2 * p3,
-           indices$i, indices$j, indices$k),
+    mapply(
+      function(i, j, k) i * j * k * p1 * p2 * p3,
+      indices$i, indices$j, indices$k
+    ),
     paste0("nested_", indices$i, "_", indices$j, "_", indices$k)
   )
 }
@@ -106,7 +132,8 @@ transform_data <- function(data, method = c("none", "log", "sqrt", "scale")) {
     log = log(data + 1),
     sqrt = sqrt(data),
     scale = as.vector(scale(data)),
-    data)
+    data
+  )
 }
 
 fit_simple_model <- function(data, type = c("lm", "glm")) {
@@ -120,7 +147,8 @@ plot_distribution <- function(data, type = c("hist", "box", "density")) {
   switch(type,
     hist = hist(data, main = "Distribution"),
     box = boxplot(data, main = "Distribution"),
-    density = plot(density(data), main = "Distribution"))
+    density = plot(density(data), main = "Distribution")
+  )
 }
 
 save_data <- function(data, filename = "output.csv") {
