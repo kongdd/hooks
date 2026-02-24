@@ -5,6 +5,8 @@ suppressPackageStartupMessages(library(jsonlite))
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
+log_stderr <- function(fmt, ...) cat(sprintf(fmt, ...), file = stderr())
+
 scan_project <- function(dir) {
   old <- setwd(dir)
   on.exit(setwd(old))
@@ -32,9 +34,9 @@ main <- function() {
   project_dir <- Sys.getenv("CLAUDE_PROJECT_DIR", getwd())
   stats <- scan_project(project_dir)
 
-  cat("\n╔══════════════════════════════════════════════════════════════╗\n", file = stderr())
-  cat("║           R Hooks Session Start                              ║\n", file = stderr())
-  cat("╚══════════════════════════════════════════════════════════════╝\n\n", file = stderr())
+  log_stderr("\n╔══════════════════════════════════════════════════════════════╗\n")
+  log_stderr("║           R Hooks Session Start                              ║\n")
+  log_stderr("╚══════════════════════════════════════════════════════════════╝\n\n")
 
   data_dir <- file.path(project_dir, "data")
   if (!dir.exists(data_dir)) dir.create(data_dir, recursive = TRUE)
@@ -54,13 +56,13 @@ main <- function() {
   json_file <- file.path(data_dir, "stats.json")
   write_json(session_data, json_file, pretty = TRUE, auto_unbox = TRUE)
 
-  cat(sprintf("📁 项目目录: %s\n", project_dir), file = stderr())
-  cat(sprintf("📊 文件总数: %d\n", stats$total), file = stderr())
-  cat(sprintf("📄 R 文件数: %d\n", length(stats$r)), file = stderr())
-  if (length(stats$r)) cat(sprintf("   └─ %s\n", paste(stats$r, collapse = ", ")), file = stderr())
-  cat(sprintf("📄 JSON 文件数: %d\n", length(stats$json)), file = stderr())
-  cat(sprintf("📄 CSV 文件数: %d\n", length(stats$csv)), file = stderr())
-  cat(sprintf("\n✅ 统计信息已保存: %s\n\n", json_file), file = stderr())
+  log_stderr("📁 项目目录: %s\n", project_dir)
+  log_stderr("📊 文件总数: %d\n", stats$total)
+  log_stderr("📄 R 文件数: %d\n", length(stats$r))
+  if (length(stats$r)) log_stderr("   └─ %s\n", paste(stats$r, collapse = ", "))
+  log_stderr("📄 JSON 文件数: %d\n", length(stats$json))
+  log_stderr("📄 CSV 文件数: %d\n", length(stats$csv))
+  log_stderr("\n✅ 统计信息已保存: %s\n\n", json_file)
 
   invisible(0)
 }

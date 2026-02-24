@@ -5,6 +5,8 @@ suppressPackageStartupMessages(library(jsonlite))
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
+log_stderr <- function(fmt, ...) cat(sprintf(fmt, ...), file = stderr())
+
 # 从stdin读取JSON输入
 read_stdin <- function() {
   if (interactive()) return(NULL)
@@ -60,21 +62,21 @@ main <- function() {
   dir <- Sys.getenv("CLAUDE_PROJECT_DIR", getwd())
 
   if (file == "") {
-    cat("\n⚠️  PreToolUse: 未指定文件路径\n", file = stderr())
+    log_stderr("\n⚠️  PreToolUse: 未指定文件路径\n")
     log_hook(dir, tool, "", "warning", "未指定文件路径")
     return(invisible(0))
   }
 
-  cat(sprintf("\n🔍 PreToolUse: %s\n   文件: %s\n", tool, file), file = stderr())
+  log_stderr("\n🔍 PreToolUse: %s\n   文件: %s\n", tool, file)
 
   if (file.exists(file) && file.info(file)$size > 10 * 1024 * 1024) {
-    cat("   ❌ 文件超过 10MB\n", file = stderr())
+    log_stderr("   ❌ 文件超过 10MB\n")
     log_hook(dir, tool, file, "blocked", "文件过大")
     return(invisible(2))
   }
 
   result <- check_sensitive(file)
-  cat(sprintf("   %s %s\n", if (result$ok) "✅" else "⚠️", result$msg), file = stderr())
+  log_stderr("   %s %s\n", if (result$ok) "✅" else "⚠️", result$msg)
   log_hook(dir, tool, file, if (result$ok) "allowed" else "warning", result$msg)
 
   json_file <- file.path(dir, "data", "stats.json")
@@ -84,7 +86,7 @@ main <- function() {
     write_json(stats, json_file, pretty = TRUE, auto_unbox = TRUE)
   }
 
-  cat("\n", file = stderr())
+  log_stderr("\n")
   invisible(0)
 }
 
