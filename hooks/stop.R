@@ -10,7 +10,7 @@ main <- function() {
   json_file <- file.path(dir, "data", "stats.json")
 
   if (!file.exists(json_file)) {
-    cat("⚠️  未找到 stats.json\n")
+    cat("⚠️  未找到 stats.json\n", file = stderr())
     return(invisible(0))
   }
 
@@ -46,27 +46,27 @@ main <- function() {
   stats$session_summary <- summary
   write_json(stats, json_file, pretty = TRUE, auto_unbox = TRUE)
 
-  cat("\n╔══════════════════════════════════════════════════════════════╗\n")
-  cat("║           R Hooks Session Summary                            ║\n")
-  cat("╚══════════════════════════════════════════════════════════════╝\n\n")
-  cat(sprintf("⏱️  会话时长: %.1f 分钟\n", summary$duration))
-  cat(sprintf("📝 文件修改: %d\n", summary$modified))
-  cat(sprintf("📄 R 文件数: %d\n\n", summary$r_count))
+  cat("\n╔══════════════════════════════════════════════════════════════╗\n", file = stderr())
+  cat("║           R Hooks Session Summary                            ║\n", file = stderr())
+  cat("╚══════════════════════════════════════════════════════════════╝\n\n", file = stderr())
+  cat(sprintf("⏱️  会话时长: %.1f 分钟\n", summary$duration), file = stderr())
+  cat(sprintf("📝 文件修改: %d\n", summary$modified), file = stderr())
+  cat(sprintf("📄 R 文件数: %d\n\n", summary$r_count), file = stderr())
 
-  cat("🔔 Hooks 触发统计:\n")
-  for (n in names(summary$hooks)) cat(sprintf("   • %s: %d\n", n, summary$hooks[[n]]))
+  cat("🔔 Hooks 触发统计:\n", file = stderr())
+  for (n in names(summary$hooks)) cat(sprintf("   • %s: %d\n", n, summary$hooks[[n]]), file = stderr())
 
   if (length(summary$ops)) {
-    cat("\n📊 文件操作详情:\n")
-    cat(sprintf("   • 总计: %d\n", summary$ops$total))
-    cat(sprintf("   • 格式化: %d\n", summary$ops$formatted))
-    cat(sprintf("   • 允许: %d\n", summary$ops$allowed))
-    cat(sprintf("   • 警告: %d\n", summary$ops$warnings))
-    cat(sprintf("   • 错误: %d\n", summary$ops$errors))
+    cat("\n📊 文件操作详情:\n", file = stderr())
+    cat(sprintf("   • 总计: %d\n", summary$ops$total), file = stderr())
+    cat(sprintf("   • 格式化: %d\n", summary$ops$formatted), file = stderr())
+    cat(sprintf("   • 允许: %d\n", summary$ops$allowed), file = stderr())
+    cat(sprintf("   • 警告: %d\n", summary$ops$warnings), file = stderr())
+    cat(sprintf("   • 错误: %d\n", summary$ops$errors), file = stderr())
   }
 
-  cat(sprintf("\n🕐 %s → %s\n", summary$start, summary$end))
-  cat("\n✅ R Hooks 运行正常\n\n")
+  cat(sprintf("\n🕐 %s → %s\n", summary$start, summary$end), file = stderr())
+  cat("\n✅ R Hooks 运行正常\n\n", file = stderr())
 
   invisible(0)
 }

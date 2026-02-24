@@ -169,21 +169,21 @@ main <- function() {
     return(invisible(0))
   }
 
-  cat(sprintf("\n📝 PostToolUse: %s\n   文件: %s\n", tool, file))
+  cat(sprintf("\n📝 PostToolUse: %s\n   文件: %s\n", tool, file), file = stderr())
 
   if (file.exists(file)) {
     lines <- length(readLines(file, warn = FALSE))
     size <- file.info(file)$size / 1024
-    cat(sprintf("   📊 行数: %d | 大小: %.2f KB\n", lines, size))
+    cat(sprintf("   📊 行数: %d | 大小: %.2f KB\n", lines, size), file = stderr())
   }
 
   ext <- tolower(tools::file_ext(file))
 
   # R 文件格式化
   if (ext %in% c("r", "rmd")) {
-    cat("   🔧 尝试格式化...\n")
+    cat("   🔧 尝试格式化...\n", file = stderr())
     r <- format_r(file)
-    cat(sprintf("   %s %s\n", if (r$ok) "✅" else "ℹ️", r$msg))
+    cat(sprintf("   %s %s\n", if (r$ok) "✅" else "ℹ️", r$msg), file = stderr())
     log_hook(dir, tool, file, if (r$ok) "formatted" else "info", r$msg)
   }
 
@@ -191,21 +191,21 @@ main <- function() {
   if (ext == "csv" && file.exists(file)) {
     tryCatch({
       df <- read.csv(file, nrows = 100)
-      cat(sprintf("   📈 CSV: %d 列, %d+ 行\n", ncol(df), nrow(df)))
+      cat(sprintf("   📈 CSV: %d 列, %d+ 行\n", ncol(df), nrow(df)), file = stderr())
       log_hook(dir, tool, file, "analyzed", sprintf("%d cols, %d rows", ncol(df), nrow(df)))
     }, error = function(e) log_hook(dir, tool, file, "error", e$message))
   }
 
   # R 代码简洁性分析
   if (ext %in% c("r", "rmd") && file.exists(file)) {
-    cat("\n   📐 代码简洁性分析:\n")
+    cat("\n   📐 代码简洁性分析:\n", file = stderr())
     analysis <- analyze_code_simplification(file)
     icon <- if (analysis$score >= 80) "✅" else if (analysis$score >= 60) "⚠️" else "❌"
-    cat(sprintf("   %s 评分: %d/100 (%s)\n", icon, analysis$score, analysis$level))
+    cat(sprintf("   %s 评分: %d/100 (%s)\n", icon, analysis$score, analysis$level), file = stderr())
 
     if (length(analysis$issues) > 0) {
-      cat("   主要问题:\n")
-      for (issue in head(analysis$issues, 3)) cat(sprintf("   • %s\n", issue))
+      cat("   主要问题:\n", file = stderr())
+      for (issue in head(analysis$issues, 3)) cat(sprintf("   • %s\n", issue), file = stderr())
     }
 
     log_hook(dir, tool, file, "simplification",
@@ -224,7 +224,7 @@ main <- function() {
     write_json(stats, json_file, pretty = TRUE, auto_unbox = TRUE)
   }
 
-  cat("\n")
+  cat("\n", file = stderr())
   invisible(0)
 }
 

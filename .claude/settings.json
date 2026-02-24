@@ -8,6 +8,14 @@
         }]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [{
+          "type": "command",
+          "command": "Rscript hooks/prompt_submit.R"
+        }]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Write|Edit",

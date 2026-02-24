@@ -60,21 +60,21 @@ main <- function() {
   dir <- Sys.getenv("CLAUDE_PROJECT_DIR", getwd())
 
   if (file == "") {
-    cat("\n⚠️  PreToolUse: 未指定文件路径\n")
+    cat("\n⚠️  PreToolUse: 未指定文件路径\n", file = stderr())
     log_hook(dir, tool, "", "warning", "未指定文件路径")
     return(invisible(0))
   }
 
-  cat(sprintf("\n🔍 PreToolUse: %s\n   文件: %s\n", tool, file))
+  cat(sprintf("\n🔍 PreToolUse: %s\n   文件: %s\n", tool, file), file = stderr())
 
   if (file.exists(file) && file.info(file)$size > 10 * 1024 * 1024) {
-    cat("   ❌ 文件超过 10MB\n")
+    cat("   ❌ 文件超过 10MB\n", file = stderr())
     log_hook(dir, tool, file, "blocked", "文件过大")
     return(invisible(2))
   }
 
   result <- check_sensitive(file)
-  cat(sprintf("   %s %s\n", if (result$ok) "✅" else "⚠️", result$msg))
+  cat(sprintf("   %s %s\n", if (result$ok) "✅" else "⚠️", result$msg), file = stderr())
   log_hook(dir, tool, file, if (result$ok) "allowed" else "warning", result$msg)
 
   json_file <- file.path(dir, "data", "stats.json")
@@ -84,7 +84,7 @@ main <- function() {
     write_json(stats, json_file, pretty = TRUE, auto_unbox = TRUE)
   }
 
-  cat("\n")
+  cat("\n", file = stderr())
   invisible(0)
 }
 

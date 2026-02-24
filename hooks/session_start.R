@@ -32,9 +32,9 @@ main <- function() {
   project_dir <- Sys.getenv("CLAUDE_PROJECT_DIR", getwd())
   stats <- scan_project(project_dir)
 
-  cat("\n╔══════════════════════════════════════════════════════════════╗\n")
-  cat("║           R Hooks Session Start                              ║\n")
-  cat("╚══════════════════════════════════════════════════════════════╝\n\n")
+  cat("\n╔══════════════════════════════════════════════════════════════╗\n", file = stderr())
+  cat("║           R Hooks Session Start                              ║\n", file = stderr())
+  cat("╚══════════════════════════════════════════════════════════════╝\n\n", file = stderr())
 
   data_dir <- file.path(project_dir, "data")
   if (!dir.exists(data_dir)) dir.create(data_dir, recursive = TRUE)
@@ -54,13 +54,13 @@ main <- function() {
   json_file <- file.path(data_dir, "stats.json")
   write_json(session_data, json_file, pretty = TRUE, auto_unbox = TRUE)
 
-  cat(sprintf("📁 项目目录: %s\n", project_dir))
-  cat(sprintf("📊 文件总数: %d\n", stats$total))
-  cat(sprintf("📄 R 文件数: %d\n", length(stats$r)))
-  if (length(stats$r)) cat(sprintf("   └─ %s\n", paste(stats$r, collapse = ", ")))
-  cat(sprintf("📄 JSON 文件数: %d\n", length(stats$json)))
-  cat(sprintf("📄 CSV 文件数: %d\n", length(stats$csv)))
-  cat(sprintf("\n✅ 统计信息已保存: %s\n\n", json_file))
+  cat(sprintf("📁 项目目录: %s\n", project_dir), file = stderr())
+  cat(sprintf("📊 文件总数: %d\n", stats$total), file = stderr())
+  cat(sprintf("📄 R 文件数: %d\n", length(stats$r)), file = stderr())
+  if (length(stats$r)) cat(sprintf("   └─ %s\n", paste(stats$r, collapse = ", ")), file = stderr())
+  cat(sprintf("📄 JSON 文件数: %d\n", length(stats$json)), file = stderr())
+  cat(sprintf("📄 CSV 文件数: %d\n", length(stats$csv)), file = stderr())
+  cat(sprintf("\n✅ 统计信息已保存: %s\n\n", json_file), file = stderr())
 
   invisible(0)
 }
